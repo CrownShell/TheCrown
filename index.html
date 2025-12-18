@@ -1,0 +1,200 @@
+# When the Crown speak everyone is weak 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CrownShell</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0b0e0c;
+  --green: #3cff7a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: 'Cinzel', serif;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+}
+
+#crown-mask {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at center,
+      transparent 0%,
+      transparent 22%,
+      rgba(11,14,12,0.95) 28%,
+      rgba(11,14,12,1) 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+#grain {
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.center {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: boot 1.6s ease forwards;
+  animation-delay: 1.2s;
+}
+
+@keyframes boot {
+  to { opacity: 1; }
+}
+
+.title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #e6f0ea;
+  position: relative;
+}
+
+/* Micro-glitch */
+.title::before,
+.title::after {
+  content: "CrownShell";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.title:hover {
+  color: #f0fff6;
+  text-shadow: 0 0 12px var(--green);
+}
+
+.title:hover::before {
+  opacity: 0.6;
+  color: var(--green);
+  transform: translate(1px, -1px);
+  animation: glitch 120ms infinite;
+}
+
+.title:hover::after {
+  opacity: 0.4;
+  color: var(--green);
+  transform: translate(-1px, 1px);
+  animation: glitch 90ms infinite reverse;
+}
+
+@keyframes glitch {
+  0% { clip-path: inset(0 0 90% 0); }
+  50% { clip-path: inset(40% 0 20% 0); }
+  100% { clip-path: inset(85% 0 5% 0); }
+}
+
+.footer {
+  position: fixed;
+  bottom: 30px;
+  width: 100%;
+  text-align: center;
+  z-index: 3;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  color: rgba(230,240,234,0.55);
+  opacity: 0;
+  animation: boot 1.6s ease forwards;
+  animation-delay: 2.4s;
+}
+
+.footer span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div id="crown-mask"></div>
+<div id="grain"></div>
+
+<div class="center">
+  <div class="title">CrownShell</div>
+</div>
+
+<div class="footer">
+  “I am a throne for your head, but a noose for your soul”
+  <span>— The Crown</span>
+</div>
+
+<script>
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const commands = [
+  "root","sudo","chmod","chown","ls","cd","cat","echo",
+  "whoami","./exploit","ssh","nmap","curl","wget","&&","||"
+];
+
+const size = 16;
+const cols = [];
+
+function init() {
+  const count = Math.floor(w / size);
+  cols.length = count;
+  for (let i = 0; i < count; i++) cols[i] = Math.random() * h;
+}
+init();
+
+function draw() {
+  ctx.fillStyle = "rgba(11,14,12,0.12)";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.font = `${size}px monospace`;
+
+  for (let i = 0; i < cols.length; i++) {
+    const text = commands[Math.floor(Math.random() * commands.length)];
+    const x = i * size;
+    const y = cols[i];
+
+    const fade = Math.max(0, 1 - y / h);
+    ctx.fillStyle = `rgba(60,255,122,${fade})`;
+    ctx.fillText(text, x, y);
+
+    cols[i] += size * (0.6 + Math.random());
+    if (cols[i] > h + 100) cols[i] = -Math.random() * 200;
+  }
+}
+
+setInterval(draw, 40);
+</script>
+
+</body>
+</html>
